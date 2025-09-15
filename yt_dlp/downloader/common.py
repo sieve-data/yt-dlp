@@ -457,18 +457,22 @@ class FileDownloader:
 
         sleep_note = ''
         if subtitle:
-            sleep_interval = self.params.get('sleep_interval_subtitles') or 0
+            if self.params.get('sleep_interval') == 0:
+                sleep_interval = 0
+            else:
+                sleep_interval = self.params.get('sleep_interval_subtitles') or 0
         else:
             min_sleep_interval = self.params.get('sleep_interval') or 0
             max_sleep_interval = self.params.get('max_sleep_interval') or 0
 
             if available_at := info_dict.get('available_at'):
                 forced_sleep_interval = available_at - int(time.time())
-                if forced_sleep_interval > min_sleep_interval:
-                    sleep_note = 'as required by the site'
-                    min_sleep_interval = forced_sleep_interval
-                if forced_sleep_interval > max_sleep_interval:
-                    max_sleep_interval = forced_sleep_interval
+                if self.params.get('sleep_interval') != 0:      
+                    if forced_sleep_interval > min_sleep_interval:
+                        sleep_note = 'as required by the site'
+                        min_sleep_interval = forced_sleep_interval
+                    if forced_sleep_interval > max_sleep_interval:
+                        max_sleep_interval = forced_sleep_interval
 
             sleep_interval = random.uniform(
                 min_sleep_interval, max_sleep_interval or min_sleep_interval)
